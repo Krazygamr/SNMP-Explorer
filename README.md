@@ -188,8 +188,7 @@ python app.py
 ---
 
 ## ⚖️ License
-Currently unlicensed.  
-**Recommendation:** Apply a non-commercial license if you want to allow learning/contribution but restrict commercial use.  
+Creative Commons NonCommercial license
 
 ---
 
