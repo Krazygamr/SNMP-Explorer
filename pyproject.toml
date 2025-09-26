@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "snmpexplorer"
+version = "0.1.0"
+description = "SNMP Explorer: Pi-based SNMP Exporter manager with Prometheus + Grafana wiring"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Your Name", email = "you@example.com" }]
+keywords = ["snmp", "prometheus", "grafana", "monitoring"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+
+dependencies = [
+  "paramiko>=3.4",
+  "cryptography>=42.0",
+  "ruamel.yaml>=0.18.6",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourname/snmpexplorer"
+Issues = "https://github.com/yourname/snmpexplorer/issues"
+
+[project.scripts]
+snmpexplorer = "snmpexplorer.app:main"
+
+[tool.setuptools.packages.find]
+where = [""]
+include = ["snmpexplorer*"]

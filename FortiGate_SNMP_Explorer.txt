@@ -1,0 +1,179 @@
+FortiGate SNMP Explorer
+
+Overview
+
+FortiGate SNMP Explorer is a Python/Tkinter application for managing
+SNMP monitoring of FortiGate devices (and other SNMP targets) using
+Prometheus + SNMP Exporter.
+
+The app provides a GUI to: - Browse and select OIDs from preloaded
+catalogs of FortiGate MIBs. - Read the current snmp.yml configuration
+from a remote Raspberry Pi (or other Linux host). - Edit modules (walks,
+metrics) and apply changes safely. - Push updates back to the Pi, with
+automatic backup and service restart. - Verify Prometheus/Exporter
+status through logs and health checks. - Generate Grafana dashboards
+automatically from the configured SNMP modules. - Manage multiple
+session profiles (connection details, Grafana API keys, etc.).
+
+This allows end-to-end monitoring setup without directly editing YAML
+files or restarting services manually.
+
+------------------------------------------------------------------------
+
+Architecture
+
+    snmpexplorer/
+    │
+    ├── app.py                # Main Tkinter application entry point
+    ├── common/
+    │   └── context.py        # AppState (shared state between tabs)
+    ├── tabs/
+    │   ├── connection_tab.py # SSH / credentials / session profiles
+    │   ├── catalog_tab.py    # MIB browsing, categories, add/remove OIDs
+    │   ├── dashboard_tab.py  # Grafana dashboard generator
+    │   ├── prometheus_tab.py # Prometheus logs & service health
+    │   └── verify_tab.py     # End-to-end config validation
+    │
+    ├── dashboard/
+    │   ├── builder.py        # Generates Grafana dashboards
+    │   └── helpers.py        # Utilities used by the builder
+    │
+    ├── requirements.txt      # Python dependencies
+    └── README.md             # Project documentation
+
+Key Components
+
+-   AppState (common/context.py)
+    Stores connection details, file paths, current catalog, and session
+    profile data.
+
+-   Tabs (tabs/)
+
+    -   connection_tab: Configure SSH credentials, SNMP exporter path,
+        Grafana API keys. Save/load session profiles.
+    -   catalog_tab: Browse FortiGate OIDs by category. Add/remove walks
+        and metrics. Validate dependencies.
+    -   dashboard_tab: Dynamically build Grafana dashboards based on
+        snmp.yml.
+    -   prometheus_tab: Show Prometheus logs, validate scrape targets.
+    -   verify_tab: Perform a dry run health check across SNMP Exporter,
+        Prometheus, and Grafana.
+
+-   Dashboard builder (dashboard/builder.py)
+    Uses snmp.yml as source of truth to generate Grafana dashboards
+    automatically.
+
+------------------------------------------------------------------------
+
+Setup
+
+Prerequisites
+
+-   Python 3.11+
+-   Raspberry Pi or Linux host running:
+    -   snmp_exporter (Prometheus SNMP exporter binary)
+    -   prometheus
+-   Grafana with API key (for dashboard push)
+
+Installation
+
+1.  Clone or unzip the repo:
+
+        git clone https://github.com/yourusername/snmpexplorer.git
+        cd snmpexplorer
+
+2.  Install dependencies:
+
+        pip install -r requirements.txt
+
+3.  Place MIB catalogs:
+
+    -   FortiGate MIB catalog JSON is included under catalogs/.
+    -   You can add more catalogs for other vendors.
+
+------------------------------------------------------------------------
+
+Usage
+
+Running the App
+
+From project root:
+
+    python app.py
+
+Workflow
+
+1.  Connection Tab
+    -   Enter Pi IP, SSH user, SSH password/key, Grafana API key.
+    -   Save/load session profiles.
+2.  Catalog Tab
+    -   Browse FortiGate OIDs by category.
+    -   Add/remove walks and metrics.
+    -   Validate dependencies.
+3.  Dashboard Tab
+    -   Click Generate Dashboard to create Grafana panels for all
+        selected metrics.
+    -   Push to Grafana automatically.
+4.  Prometheus Tab
+    -   Check recent logs for scrape errors.
+    -   Verify prometheus.yml jobs.
+5.  Verify Tab
+    -   Run End-to-End Check: confirms SNMP exporter config, Prometheus
+        scrape, and Grafana panels.
+
+------------------------------------------------------------------------
+
+Example: Adding CPU Monitoring
+
+1.  In Catalog Tab, select fgSysCpuUsage.
+2.  Assign it to your module fortigate_basic.
+3.  Push update → app writes new snmp.yml to Pi and restarts SNMP
+    Exporter.
+4.  In Dashboard Tab, generate dashboard → Grafana panel for CPU usage
+    appears.
+
+------------------------------------------------------------------------
+
+Safety Features
+
+-   Every snmp.yml update creates a backup:
+    /etc/snmp_exporter/snmp.yml.bak.TIMESTAMP
+-   SSH push validates YAML syntax before replacing.
+-   Walk dependencies prevent accidental config corruption.
+
+------------------------------------------------------------------------
+
+Troubleshooting
+
+-   Exporter won’t start:
+    Run manually:
+
+        /usr/local/bin/snmp_exporter --config.file=/etc/snmp_exporter/snmp.yml
+
+    Look for syntax errors.
+
+-   No Grafana panels appear:
+
+    -   Verify Grafana API key is valid.
+    -   Check that the SNMP module names in snmp.yml match Prometheus
+        scrape jobs.
+
+-   Prometheus not scraping:
+    Test scrape:
+
+        curl -s "http://127.0.0.1:9116/snmp?module=fortigate_basic&auth=fortigate_v2c&target=192.168.1.99"
+
+------------------------------------------------------------------------
+
+Roadmap
+
+-   Support multi-vendor catalogs (Cisco, Ciena, Adtran).
+-   Enhanced error handling with inline fixes.
+-   Export/import of dashboard JSON for offline editing.
+-   Optional CLI wrapper for headless operation.
+
+------------------------------------------------------------------------
+
+License
+
+MIT License – feel free to use, modify, and share.

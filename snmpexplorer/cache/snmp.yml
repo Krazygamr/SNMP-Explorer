@@ -1,0 +1,80 @@
+auths:
+  fortigate_v2c:
+    version: 2
+    community: myf1rstsnmp
+
+modules:
+  # IF-MIB with both 64-bit and 32-bit counters + names
+  ifmib_32bit:
+    # Walk BOTH ifTable and ifXTable
+    walk:
+      - 1.3.6.1.2.1.2.2          # ifTable
+      - 1.3.6.1.2.1.31.1.1       # ifXTable
+    max_repetitions: 25
+    retries: 5
+    timeout: 20s
+    metrics:
+      # 64-bit counters (preferred)
+      - name: ifHCInOctets
+        oid: 1.3.6.1.2.1.31.1.1.1.6
+        type: counter
+        help: "64-bit inbound octets"
+        indexes: [{labelname: ifIndex, type: gauge}]
+
+      - name: ifHCOutOctets
+        oid: 1.3.6.1.2.1.31.1.1.1.10
+        type: counter
+        help: "64-bit outbound octets"
+        indexes: [{labelname: ifIndex, type: gauge}]
+
+      # 32-bit fallbacks (keep for older interfaces)
+      - name: ifInOctets
+        oid: 1.3.6.1.2.1.2.2.1.10
+        type: counter
+        help: "32-bit inbound octets"
+        indexes: [{labelname: ifIndex, type: gauge}]
+
+      - name: ifOutOctets
+        oid: 1.3.6.1.2.1.2.2.1.16
+        type: counter
+        help: "32-bit outbound octets"
+        indexes: [{labelname: ifIndex, type: gauge}]
+
+      # Labels / identity
+      - name: ifName
+        oid: 1.3.6.1.2.1.31.1.1.1.1
+        type: OctetString
+        help: "Interface name (ifName)"
+        indexes: [{labelname: ifIndex, type: gauge}]
+
+      - name: ifAlias
+        oid: 1.3.6.1.2.1.31.1.1.1.18
+        type: OctetString
+        help: "Interface alias/description (ifAlias)"
+        indexes: [{labelname: ifIndex, type: gauge}]
+
+      - name: ifDescr
+        oid: 1.3.6.1.2.1.2.2.1.2
+        type: OctetString
+        help: "Interface description (ifDescr)"
+        indexes: [{labelname: ifIndex, type: gauge}]
+
+      - name: fgSysCpuUsage
+        oid: 1.3.6.1.4.1.12356.101.4.1.3
+        type: gauge
+        help: "CPU utilization (%)"
+
+      - name: fgSysMemUsage
+        oid: 1.3.6.1.4.1.12356.101.4.1.4
+        type: gauge
+        help: "Memory utilization (%)"
+
+      - name: fgSysMemCapacity
+        oid: 1.3.6.1.4.1.12356.101.4.1.5
+        type: gauge
+        help: "Total RAM (KB)"
+
+      - name: fgSysSesCount
+        oid: 1.3.6.1.4.1.12356.101.4.1.8
+        type: gauge
+        help: "Active sessions"

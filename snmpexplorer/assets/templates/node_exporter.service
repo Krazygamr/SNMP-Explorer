@@ -1,0 +1,13 @@
+[Unit]
+Description=Prometheus Node Exporter
+After=network-online.target
+
+[Service]
+User=root
+Group=root
+Type=simple
+ExecStart=/usr/bin/prometheus-node-exporter --web.listen-address=:9100
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

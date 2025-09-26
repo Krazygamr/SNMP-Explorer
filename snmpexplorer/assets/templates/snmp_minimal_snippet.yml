@@ -1,0 +1,13 @@
+# Append to /etc/snmp_exporter/snmp.yml (example only; no secrets written)
+auths:
+  fortigate_v2c:
+    version: 2
+    community: ${SNMP_COMMUNITY}
+
+modules:
+  fortigate_basic:
+    walk:
+      - 1.3.6.1.4.1.12356.101.4.1
+      - 1.3.6.1.2.1.1
+    retries: 3
+    timeout: 5s
